@@ -18,35 +18,23 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "log.h"
-#include "downloadTest.h"
-#include "signingTest.h"
-using namespace std;
+#ifndef SIGNINGTEST_H_
+#define SIGNINGTEST_H_
 
-int main(int argc, char *argv[])
+#include <string>
+
+class SigningTest
 {
-  if(argc != 2)
-  {
-    loginfo << "usage: " << argv[0] << " IP_ADDR" << endl;
-    return 1;
-  }
+public:
+  int execute(const std::string &targetIp);
 
-  const string testObjectIp = argv[1];
-  int ret = 0;
+private:
+  int prepare();
+  int upload(const std::string &targetIp);
+  int turnBit();
+  int checkSignature(const std::string &targetIp, std::string &result);
 
-  int err = DownloadTest().execute(testObjectIp);
-  if(err < 0)
-    ret = err;
-  else if(err > 0)
-    ret = 2;
+  std::string signature;
+};
 
-  err = SigningTest().execute(testObjectIp);
-  if(err < 0)
-    ret = err;
-  else if(err > 0)
-    ret = 3;
-
-  loginfo << "overall test result: " << (ret ? "FAILED" : "passed") << endl;
-
-  return ret;
-}
+#endif /* SIGNINGTEST_H_ */

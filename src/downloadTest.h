@@ -27,16 +27,13 @@
 class DownloadTest
 {
 public:
+  int execute(const std::string &targetIp);
+
+private:
   int prepare(const std::string &dummyFile, const std::string &targetIp);
   int download(const std::string &downloadCmd, const std::string &cmdOption, const std::string &dumpOption, const std::string &suffix);
   int checkEncryption();
 
-  const std::string rcpCmd = "rcp ";
-  const std::string rcpSuffix = "Rcp";
-  const std::string scpCmd = "scp ";
-  const std::string scpSuffix = "Scp";
-
-private:
   std::string originalPath;
   std::string remotePath;
   std::string dumpPath;

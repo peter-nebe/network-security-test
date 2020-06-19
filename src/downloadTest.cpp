@@ -19,6 +19,7 @@
  */
 
 #include "downloadTest.h"
+#include "files.h"
 #include "log.h"
 #include "system.h"
 #include <filesystem>
@@ -26,6 +27,61 @@
 #include <cstring>
 namespace fs = std::filesystem;
 using namespace std;
+
+namespace
+{
+  const string rcpCmd = "rcp ";
+  const string rcpSuffix = "Rcp";
+  const string scpCmd = "scp ";
+  const string scpSuffix = "Scp";
+}
+
+int DownloadTest::execute(const string &targetIp)
+{
+  int ret = 0;
+
+  const string testName = "download test";
+  loginfo << "executing " << testName << "..." << endl;
+
+  if(prepare(Files::testDummyFile, targetIp))
+    return -1;
+
+  if(download(rcpCmd, string(), "-c 24", rcpSuffix))
+    ret = -2;
+
+  int err = checkEncryption();
+  if(err < 0)
+    ret = -3;
+  else if(err != 1)
+    ret = 1;
+
+  if(download(scpCmd, "-i " + Files::sshIdentityFile, "-c 52", scpSuffix))
+    ret = -4;
+
+  err = checkEncryption();
+  if(err < 0)
+    ret = -5;
+  else if(err > 0)
+    ret = 2;
+
+  loginfo << "result of " << testName << ": " << (ret ? "FAILED" : "passed") << endl << endl;
+
+  return ret;
+}
+
+int DownloadTest::prepare(const string &dummyFile, const string &targetIp)
+{
+  originalPath = dummyFile;
+  remotePath = targetIp + ":/tmp/" + dummyFile;
+
+  if(!fs::exists(originalPath))
+  {
+    logerror << quoted(originalPath) << " does not exist" << endl;
+    return 1;
+  }
+
+  return System::exec(rcpCmd + originalPath + ' ' + remotePath);
+}
 
 namespace
 {
@@ -84,20 +140,6 @@ size_t filestr(const string &path, const string &str)
 }
 
 } // namespace
-
-int DownloadTest::prepare(const string &dummyFile, const string &targetIp)
-{
-  originalPath = dummyFile;
-  remotePath = targetIp + ":/tmp/" + dummyFile;
-
-  if(!fs::exists(originalPath))
-  {
-    logerror << quoted(originalPath) << " does not exist" << endl;
-    return 1;
-  }
-
-  return System::exec(rcpCmd + originalPath + ' ' + remotePath);
-}
 
 int DownloadTest::download(const string &downloadCmd, const string &cmdOption, const string &dumpOption, const string &suffix)
 {

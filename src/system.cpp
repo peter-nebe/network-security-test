@@ -20,18 +20,40 @@
 
 #include "system.h"
 #include "log.h"
-#include <iomanip>
+#include <fstream>
 using namespace std;
 
 int System::exec(const string &command)
 {
+  const string text = "executing command \"" + command + '"';
 #if VERBOSE
-  loginfo << "executing command " << quoted(command) << "..." << endl;
+  loginfo << text << "..." << endl;
 #endif
 
   const int ret = system(command.c_str());
-  if(ret)
-    logerror << ret << " executing command " << quoted(command) << endl;
+  if(ret < 0)
+    logerror << ret << ' ' << text << endl;
+  else if(ret > 0)
+    loginfo << "return value " << ret << ' ' << text << endl;
+
+  return ret;
+}
+
+int System::exec(const string &command, string &output)
+{
+  const string text = "executing command \"" + command + '"';
+#if VERBOSE
+  loginfo << text << "..." << endl;
+#endif
+
+  const string outputFile = "/tmp/syscmdoutput";
+  const int ret = system((command + " > " + outputFile).c_str());
+  if(ret < 0)
+    logerror << ret << ' ' << text << endl;
+  else if(ret > 0)
+    loginfo << "return value " << ret << ' ' << text << endl;
+
+  getline(ifstream(outputFile), output);
 
   return ret;
 }

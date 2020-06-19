@@ -27,6 +27,7 @@ class System
 {
 public:
   static int exec(const std::string &command);
+  static int exec(const std::string &command, std::string &output);
 };
 
 #endif /* SYSTEM_H_ */

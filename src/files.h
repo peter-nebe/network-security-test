@@ -18,35 +18,18 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "log.h"
-#include "downloadTest.h"
-#include "signingTest.h"
-using namespace std;
+#ifndef FILES_H_
+#define FILES_H_
 
-int main(int argc, char *argv[])
+#include <string>
+
+namespace Files
 {
-  if(argc != 2)
-  {
-    loginfo << "usage: " << argv[0] << " IP_ADDR" << endl;
-    return 1;
-  }
-
-  const string testObjectIp = argv[1];
-  int ret = 0;
-
-  int err = DownloadTest().execute(testObjectIp);
-  if(err < 0)
-    ret = err;
-  else if(err > 0)
-    ret = 2;
-
-  err = SigningTest().execute(testObjectIp);
-  if(err < 0)
-    ret = err;
-  else if(err > 0)
-    ret = 3;
-
-  loginfo << "overall test result: " << (ret ? "FAILED" : "passed") << endl;
-
-  return ret;
+  const std::string testDummyFile = "testDummyFile";
+  const std::string largeDummyFile = "/tmp/largeDummyFile";
+  const std::string sshIdentityFile = "sshIdentityFile";
+  const std::string privKeyFile = "privkey";
+  const std::string pubKeyFile = "/tmp/pubkey";
 }
+
+#endif /* FILES_H_ */

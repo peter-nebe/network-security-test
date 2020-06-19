@@ -4,6 +4,7 @@ project (network-security-test)
 set (project_SRC
   src/downloadTest.cpp
   src/main.cpp
+  src/signingTest.cpp
   src/system.cpp
 )
 link_libraries (
