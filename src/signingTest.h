@@ -21,19 +21,22 @@
 #ifndef SIGNINGTEST_H_
 #define SIGNINGTEST_H_
 
-#include <string>
+#include "testCase.h"
 
-class SigningTest
+class SigningTest : public TestCase
 {
 public:
-  int execute(const std::string &targetIp);
+  SigningTest();
 
 private:
-  int prepare();
-  int upload(const std::string &targetIp);
+  int setup(const std::string &targetIp) override;
+  int execute() override;
+  void teardown() override;
+  int upload();
   int turnBit();
-  int checkSignature(const std::string &targetIp, std::string &result);
+  int checkSignature(std::string &result);
 
+  std::string targetIp;
   std::string signature;
 };
 

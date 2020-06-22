@@ -18,30 +18,21 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef PORTTEST_H_
+#define PORTTEST_H_
 
-#include <string>
+#include "testCase.h"
 
-class System
+class PortTest : public TestCase
 {
 public:
-  static int exec(const std::string &command);
-  static int exec(const std::string &command, std::string &output);
+  PortTest();
 
-  enum struct Control
-  {
-    start,
-    stop
-  };
-  static int controlRemoteXinetd(const std::string &targetIp, Control control);
+private:
+  int setup(const std::string &targetIp) override;
+  int execute() override;
+
+  std::string targetIp;
 };
 
-namespace Command
-{
-  const std::string rcp = "rcp ";
-  const std::string scp = "scp ";
-  const std::string ssh = "ssh -i ";
-}
-
-#endif /* SYSTEM_H_ */
+#endif /* PORTTEST_H_ */

@@ -18,30 +18,39 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#include "testSuite.h"
+#include "portTest.h"
+#include "downloadTest.h"
+#include "signingTest.h"
+#include "log.h"
+using namespace std;
 
-#include <string>
-
-class System
+TestSuite::TestSuite()
 {
-public:
-  static int exec(const std::string &command);
-  static int exec(const std::string &command, std::string &output);
-
-  enum struct Control
-  {
-    start,
-    stop
-  };
-  static int controlRemoteXinetd(const std::string &targetIp, Control control);
-};
-
-namespace Command
-{
-  const std::string rcp = "rcp ";
-  const std::string scp = "scp ";
-  const std::string ssh = "ssh -i ";
+  tests.push_back(make_unique<PortTest>());
+  tests.push_back(make_unique<DownloadTest>());
+  tests.push_back(make_unique<SigningTest>());
 }
 
-#endif /* SYSTEM_H_ */
+int TestSuite::run(const string &arg)
+{
+  int ret = 0;
+
+  for(auto &test : tests)
+  {
+    loginfo << "executing " << test->name << "..." << endl;
+
+    int err = test->setup(arg);
+    if(err == 0)
+      err = test->execute();
+    if(err)
+      ret = 1;
+    test->teardown();
+
+    loginfo << "result of " << test->name << ": " << (err ? "FAILED" : "passed") << endl << endl;
+  }
+
+  loginfo << "overall test result: " << (ret ? "FAILED" : "passed") << endl;
+
+  return ret;
+}

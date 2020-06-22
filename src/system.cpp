@@ -20,6 +20,7 @@
 
 #include "system.h"
 #include "log.h"
+#include "files.h"
 #include <fstream>
 using namespace std;
 
@@ -56,4 +57,10 @@ int System::exec(const string &command, string &output)
   getline(ifstream(outputFile), output);
 
   return ret;
+}
+
+int System::controlRemoteXinetd(const string &targetIp, Control control)
+{
+  const string ctrlCmd = "systemctl "s + (control == Control::start ? "start" : "stop") + " xinetd";
+  return exec(Command::ssh + Files::sshIdentityFile + " root@" + targetIp + ' ' + ctrlCmd);
 }

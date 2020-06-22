@@ -4,8 +4,10 @@ project (network-security-test)
 set (project_SRC
   src/downloadTest.cpp
   src/main.cpp
+  src/portTest.cpp
   src/signingTest.cpp
   src/system.cpp
+  src/testSuite.cpp
 )
 link_libraries (
   pthread

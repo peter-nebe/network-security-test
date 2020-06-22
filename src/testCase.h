@@ -18,30 +18,22 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef TESTCASE_H_
+#define TESTCASE_H_
 
 #include <string>
 
-class System
+class TestCase
 {
 public:
-  static int exec(const std::string &command);
-  static int exec(const std::string &command, std::string &output);
+  TestCase(const std::string &_name)
+    : name(_name) {}
+  virtual ~TestCase() {}
+  virtual int setup(const std::string &arg) = 0;
+  virtual int execute() = 0;
+  virtual void teardown() {}
 
-  enum struct Control
-  {
-    start,
-    stop
-  };
-  static int controlRemoteXinetd(const std::string &targetIp, Control control);
+  const std::string name;
 };
 
-namespace Command
-{
-  const std::string rcp = "rcp ";
-  const std::string scp = "scp ";
-  const std::string ssh = "ssh -i ";
-}
-
-#endif /* SYSTEM_H_ */
+#endif /* TESTCASE_H_ */

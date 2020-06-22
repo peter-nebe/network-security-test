@@ -30,48 +30,16 @@ namespace
   const string signatureCmd = "openssl dgst -sha256 ";
 }
 
-int SigningTest::execute(const string &targetIp)
+SigningTest::SigningTest()
+: TestCase("signing test")
 {
-  int ret = 0;
-
-  const string testName = "signing test";
-  loginfo << "executing " << testName << "..." << endl;
-
-  if(prepare())
-    return -1;
-
-  if(turnBit())
-    ret = -2;
-
-  if(upload(targetIp))
-    ret = -3;
-
-  string result;
-  int err = checkSignature(targetIp, result);
-  if(err < 0)
-    ret = -4;
-  else if(result != "Verification Failure")
-    ret = 1;
-
-  if(turnBit())
-    ret = -5;
-
-  if(upload(targetIp))
-    ret = -6;
-
-  err = checkSignature(targetIp, result);
-  if(err < 0)
-    ret = -7;
-  else if(result != "Verified OK")
-    ret = 2;
-
-  loginfo << "result of " << testName << ": " << (ret ? "FAILED" : "passed") << endl << endl;
-
-  return ret;
 }
 
-int SigningTest::prepare()
+int SigningTest::setup(const string &targtIp)
 {
+  targetIp = targtIp;
+  signature = Files::largeDummyFile + ".sign";
+
   size_t fileSize = 0xA00000; // 10 MiB
   ofstream file(Files::largeDummyFile);
   uint8_t counter = 0;
@@ -83,16 +51,50 @@ int SigningTest::prepare()
     return -1;
   file.close();
 
-  signature = Files::largeDummyFile + ".sign";
+  int ret = System::exec(signatureCmd + "-sign " + Files::privKeyFile + " -out " + signature + ' ' + Files::largeDummyFile);
+  int err = System::controlRemoteXinetd(targetIp, System::Control::start);
+  if(err)
+    ret = err;
 
-  return System::exec(signatureCmd + "-sign " + Files::privKeyFile + " -out " + signature + ' ' + Files::largeDummyFile);
+  return ret;
 }
 
-int SigningTest::upload(const string &targetIp)
+int SigningTest::execute()
 {
-  const string rcpCmd = "rcp ";
-  int ret = System::exec(rcpCmd + Files::largeDummyFile + ' ' + targetIp + ':' + Files::largeDummyFile);
-  int err = System::exec(rcpCmd + signature + ' ' + targetIp + ':' + signature);
+  int ret = turnBit();
+  if(upload())
+    ret = -3;
+
+  string result;
+  int err = checkSignature(result);
+  if(err < 0)
+    ret = -4;
+  else if(result != "Verification Failure")
+    ret = 1;
+
+  if(turnBit())
+    ret = -5;
+  if(upload())
+    ret = -6;
+
+  err = checkSignature(result);
+  if(err < 0)
+    ret = -7;
+  else if(result != "Verified OK")
+    ret = 2;
+
+  return ret;
+}
+
+void SigningTest::teardown()
+{
+  System::controlRemoteXinetd(targetIp, System::Control::stop);
+}
+
+int SigningTest::upload()
+{
+  int ret = System::exec(Command::rcp + Files::largeDummyFile + ' ' + targetIp + ':' + Files::largeDummyFile);
+  int err = System::exec(Command::rcp + signature + ' ' + targetIp + ':' + signature);
   if(err)
     ret = err;
 
@@ -113,10 +115,10 @@ int SigningTest::turnBit()
   return 0;
 }
 
-int SigningTest::checkSignature(const string &targetIp, string &result)
+int SigningTest::checkSignature(string &result)
 {
   const string verifyCmd = signatureCmd + "-verify " + Files::pubKeyFile + " -signature " + signature + ' ' + Files::largeDummyFile;
-  const int ret = System::exec("ssh -i " + Files::sshIdentityFile + ' ' + targetIp + ' ' + verifyCmd, result);
+  const int ret = System::exec(Command::ssh + Files::sshIdentityFile + ' ' + targetIp + ' ' + verifyCmd, result);
 #if VERBOSE
   loginfo << "signature check result: " << result << endl;
 #endif

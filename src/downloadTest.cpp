@@ -30,49 +30,20 @@ using namespace std;
 
 namespace
 {
-  const string rcpCmd = "rcp ";
   const string rcpSuffix = "Rcp";
-  const string scpCmd = "scp ";
   const string scpSuffix = "Scp";
 }
 
-int DownloadTest::execute(const string &targetIp)
+DownloadTest::DownloadTest()
+: TestCase("download test")
 {
-  int ret = 0;
-
-  const string testName = "download test";
-  loginfo << "executing " << testName << "..." << endl;
-
-  if(prepare(Files::testDummyFile, targetIp))
-    return -1;
-
-  if(download(rcpCmd, string(), "-c 24", rcpSuffix))
-    ret = -2;
-
-  int err = checkEncryption();
-  if(err < 0)
-    ret = -3;
-  else if(err != 1)
-    ret = 1;
-
-  if(download(scpCmd, "-i " + Files::sshIdentityFile, "-c 52", scpSuffix))
-    ret = -4;
-
-  err = checkEncryption();
-  if(err < 0)
-    ret = -5;
-  else if(err > 0)
-    ret = 2;
-
-  loginfo << "result of " << testName << ": " << (ret ? "FAILED" : "passed") << endl << endl;
-
-  return ret;
 }
 
-int DownloadTest::prepare(const string &dummyFile, const string &targetIp)
+int DownloadTest::setup(const string &targtIp)
 {
-  originalPath = dummyFile;
-  remotePath = targetIp + ":/tmp/" + dummyFile;
+  targetIp = targtIp;
+  originalPath = Files::testDummyFile;
+  remotePath = targetIp + ":/tmp/" + Files::testDummyFile;
 
   if(!fs::exists(originalPath))
   {
@@ -80,7 +51,37 @@ int DownloadTest::prepare(const string &dummyFile, const string &targetIp)
     return 1;
   }
 
-  return System::exec(rcpCmd + originalPath + ' ' + remotePath);
+  int ret = System::controlRemoteXinetd(targetIp, System::Control::start);
+  int err = System::exec(Command::rcp + originalPath + ' ' + remotePath);
+  if(err)
+    ret = err;
+
+  return ret;
+}
+
+int DownloadTest::execute()
+{
+  int ret = download(Command::rcp, string(), "-c 24", rcpSuffix);
+  int err = checkEncryption();
+  if(err < 0)
+    ret = -3;
+  else if(err != 1)
+    ret = 1;
+
+  if(download(Command::scp, "-i " + Files::sshIdentityFile, "-c 52", scpSuffix))
+    ret = -4;
+  err = checkEncryption();
+  if(err < 0)
+    ret = -5;
+  else if(err > 0)
+    ret = 2;
+
+  return ret;
+}
+
+void DownloadTest::teardown()
+{
+  System::controlRemoteXinetd(targetIp, System::Control::stop);
 }
 
 namespace

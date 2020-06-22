@@ -21,19 +21,22 @@
 #ifndef DOWNLOADTEST_H_
 #define DOWNLOADTEST_H_
 
-#include <string>
+#include "testCase.h"
 #include <thread>
 
-class DownloadTest
+class DownloadTest : public TestCase
 {
 public:
-  int execute(const std::string &targetIp);
+  DownloadTest();
 
 private:
-  int prepare(const std::string &dummyFile, const std::string &targetIp);
+  int setup(const std::string &targetIp) override;
+  int execute() override;
+  void teardown() override;
   int download(const std::string &downloadCmd, const std::string &cmdOption, const std::string &dumpOption, const std::string &suffix);
   int checkEncryption();
 
+  std::string targetIp;
   std::string originalPath;
   std::string remotePath;
   std::string dumpPath;

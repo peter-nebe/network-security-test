@@ -19,8 +19,7 @@
  */
 
 #include "log.h"
-#include "downloadTest.h"
-#include "signingTest.h"
+#include "testSuite.h"
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -32,21 +31,9 @@ int main(int argc, char *argv[])
   }
 
   const string testObjectIp = argv[1];
-  int ret = 0;
 
-  int err = DownloadTest().execute(testObjectIp);
-  if(err < 0)
-    ret = err;
-  else if(err > 0)
-    ret = 2;
-
-  err = SigningTest().execute(testObjectIp);
-  if(err < 0)
-    ret = err;
-  else if(err > 0)
-    ret = 3;
-
-  loginfo << "overall test result: " << (ret ? "FAILED" : "passed") << endl;
+  TestSuite testSuite;
+  const int ret = testSuite.run(testObjectIp);
 
   return ret;
 }

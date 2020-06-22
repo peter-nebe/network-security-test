@@ -18,30 +18,21 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef TESTSUITE_H_
+#define TESTSUITE_H_
 
-#include <string>
+#include "testCase.h"
+#include <vector>
+#include <memory>
 
-class System
+class TestSuite
 {
 public:
-  static int exec(const std::string &command);
-  static int exec(const std::string &command, std::string &output);
+  TestSuite();
+  int run(const std::string &arg);
 
-  enum struct Control
-  {
-    start,
-    stop
-  };
-  static int controlRemoteXinetd(const std::string &targetIp, Control control);
+private:
+  std::vector<std::unique_ptr<TestCase>> tests;
 };
 
-namespace Command
-{
-  const std::string rcp = "rcp ";
-  const std::string scp = "scp ";
-  const std::string ssh = "ssh -i ";
-}
-
-#endif /* SYSTEM_H_ */
+#endif /* TESTSUITE_H_ */
