@@ -32,7 +32,7 @@ Confidentiality requires that the data exchange cannot be intercepted. To do thi
 
 1. Download a file with the *rcp* command. This transmission is not encrypted. Search the TCP dump for a snippet of the downloaded file. The snippet will be found. This is proof that the test procedure works.
 
-2. Download a file with the *scp* command. This transmission IS encrypted. Search the TCP dump for a snippet of the downloaded file. The snippet will NOT be found and the test has been passed.
+2. Download a file with the *scp* command. This transmission IS encrypted. Search the TCP dump for a snippet of the downloaded file. The snippet will NOT be found and the test will be passed.
 
 ##### Sample output of a test run
 ```
@@ -57,11 +57,16 @@ network-security-test: last download (dumpScp) was encrypted
 network-security-test: executing command "ssh -i sshIdentityFile root@169.254.6.223 systemctl stop xinetd"...
 network-security-test: result of download test: passed
 ```
-### Signing test
+### Signature test
+Digital signatures are commonly used for software distribution through non-secure channels. Successful signature verification guarantees the authenticity and integrity of the data received. The signature test checks if the device is able to verify a digital signature. This test also runs in two steps:
+
+1. Generate the signature of a large file. Then turn a bit of this file. The signature verification on the device will fail. This is proof that the test procedure works.
+
+2. Turn the same bit again. The file is now back in its original state. The signature verification will be successful and the test will be passed.
 
 ##### Sample output of a test run
 ```
-network-security-test: executing signing test...
+network-security-test: executing signature test...
 network-security-test: executing command "openssl dgst -sha256 -sign privkey -out /tmp/largeDummyFile.sign /tmp/largeDummyFile"...
 network-security-test: executing command "ssh -i sshIdentityFile root@169.254.6.223 systemctl start xinetd"...
 network-security-test: executing command "rcp /tmp/largeDummyFile 169.254.6.223:/tmp/largeDummyFile"...
@@ -74,5 +79,5 @@ network-security-test: executing command "rcp /tmp/largeDummyFile.sign 169.254.6
 network-security-test: executing command "ssh -i sshIdentityFile 169.254.6.223 openssl dgst -sha256 -verify /tmp/pubkey -signature /tmp/largeDummyFile.sign /tmp/largeDummyFile"...
 network-security-test: signature check result: Verified OK
 network-security-test: executing command "ssh -i sshIdentityFile root@169.254.6.223 systemctl stop xinetd"...
-network-security-test: result of signing test: passed
+network-security-test: result of signature test: passed
 ```

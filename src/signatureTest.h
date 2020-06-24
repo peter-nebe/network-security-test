@@ -18,15 +18,15 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNINGTEST_H_
-#define SIGNINGTEST_H_
+#ifndef SIGNATURETEST_H_
+#define SIGNATURETEST_H_
 
 #include "testCase.h"
 
-class SigningTest : public TestCase
+class SignatureTest : public TestCase
 {
 public:
-  SigningTest();
+  SignatureTest();
 
 private:
   int setup(const std::string &targetIp) override;
@@ -40,4 +40,4 @@ private:
   std::string signature;
 };
 
-#endif /* SIGNINGTEST_H_ */
+#endif /* SIGNATURETEST_H_ */

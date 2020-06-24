@@ -18,7 +18,7 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "signingTest.h"
+#include "signatureTest.h"
 #include "files.h"
 #include "log.h"
 #include "system.h"
@@ -30,12 +30,12 @@ namespace
   const string signatureCmd = "openssl dgst -sha256 ";
 }
 
-SigningTest::SigningTest()
-: TestCase("signing test")
+SignatureTest::SignatureTest()
+: TestCase("signature test")
 {
 }
 
-int SigningTest::setup(const string &targtIp)
+int SignatureTest::setup(const string &targtIp)
 {
   targetIp = targtIp;
   signature = Files::largeDummyFile + ".sign";
@@ -59,7 +59,7 @@ int SigningTest::setup(const string &targtIp)
   return ret;
 }
 
-int SigningTest::execute()
+int SignatureTest::execute()
 {
   int ret = turnBit();
   if(upload())
@@ -86,12 +86,12 @@ int SigningTest::execute()
   return ret;
 }
 
-void SigningTest::teardown()
+void SignatureTest::teardown()
 {
   System::controlRemoteXinetd(targetIp, System::Control::stop);
 }
 
-int SigningTest::upload()
+int SignatureTest::upload()
 {
   int ret = System::exec(Command::rcp + Files::largeDummyFile + ' ' + targetIp + ':' + Files::largeDummyFile);
   int err = System::exec(Command::rcp + signature + ' ' + targetIp + ':' + signature);
@@ -101,7 +101,7 @@ int SigningTest::upload()
   return ret;
 }
 
-int SigningTest::turnBit()
+int SignatureTest::turnBit()
 {
   fstream file(Files::largeDummyFile);
   char byte;
@@ -115,7 +115,7 @@ int SigningTest::turnBit()
   return 0;
 }
 
-int SigningTest::checkSignature(string &result)
+int SignatureTest::checkSignature(string &result)
 {
   const string verifyCmd = signatureCmd + "-verify " + Files::pubKeyFile + " -signature " + signature + ' ' + Files::largeDummyFile;
   const int ret = System::exec(Command::ssh + Files::sshIdentityFile + ' ' + targetIp + ' ' + verifyCmd, result);
