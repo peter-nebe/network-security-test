@@ -6,7 +6,7 @@ When an embedded device is connected to the Internet, a general requirement is a
 **network-security-test** is an example of how important security features can be tested. It contains the following tests:
 
 ### Port test
-Open ports can be entry gates for attackers, especially if you cannot rely on a firewall. Only one port should be open, and the service listening on it must be secure. The port test checks the following:
+Open ports can be entry gates for attackers, especially if you cannot rely on a firewall. Only one port should be open, and the service listening on it must be secure. The **port test** checks the following:
 - port 22/tcp is open for SSH service
 - no other port is open
 
@@ -28,7 +28,7 @@ network-security-test: unnecessary open ports: none
 network-security-test: result of port test: passed
 ```
 ### Download test
-Confidentiality requires that the data exchange cannot be intercepted. To do this, the data exchange must be encrypted. For example, OpenSSH could be used for this. The download test checks if the download with the *scp* command is actually encrypted. The test consists of two steps.
+Confidentiality requires that the data exchange cannot be intercepted. To do this, the data exchange must be encrypted. For example, OpenSSH could be used for this. The **download test** checks if the download with the *scp* command is actually encrypted. The test consists of two steps.
 
 1. Download a file with the *rcp* command. This transmission is not encrypted. Search the TCP dump for a snippet of the downloaded file. The snippet will be found. This is proof that the test procedure works.
 
@@ -58,7 +58,7 @@ network-security-test: executing command "ssh -i sshIdentityFile root@169.254.6.
 network-security-test: result of download test: passed
 ```
 ### Signature test
-Digital signatures are commonly used for software distribution through non-secure channels. Successful signature verification guarantees the authenticity and integrity of the data received. The signature test checks if the device is able to verify a digital signature. This test also runs in two steps:
+Digital signatures are commonly used for software distribution through non-secure channels. A successful signature verification guarantees the authenticity and integrity of the data received. The **signature test** checks if the device is able to verify a digital signature. This test also runs in two steps:
 
 1. Generate the signature of a large file. Then turn a bit of this file. The signature verification on the device will fail. This is proof that the test procedure works.
 
