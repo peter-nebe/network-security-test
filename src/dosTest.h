@@ -18,39 +18,24 @@
  * along with network-security-test.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef DOSTEST_H_
+#define DOSTEST_H_
 
-#include <string>
+#include "testCase.h"
 
-class System
+class DosTest : public TestCase
 {
 public:
-  static int exec(const std::string &command);
-  static int exec(const std::string &command, std::string &output);
-  static int execSsh(const std::string &targetIp, const std::string &command);
-
-  enum struct Control
-  {
-    start,
-    stop
-  };
-  static int controlRemoteService(const std::string &targetIp, const std::string &service, Control control);
+  DosTest();
 
 private:
-  static int exec(const std::string &command, const std::string &actualCommand);
+  int setup(const std::string &targetIp) override;
+  int execute() override;
+  void teardown() override;
+  int execDummySsh(const std::string &identityFile, std::string &output);
+  int execDummySsh(const std::string &identityFile, const std::string &expectedText, std::string &output);
+
+  std::string targetIp;
 };
 
-namespace Command
-{
-  const std::string rcp = "rcp ";
-  const std::string scp = "scp ";
-  const std::string ssh = "ssh -i ";
-}
-
-namespace Service
-{
-  const std::string xinetd = "xinetd";
-}
-
-#endif /* SYSTEM_H_ */
+#endif /* DOSTEST_H_ */

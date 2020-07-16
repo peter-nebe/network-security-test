@@ -52,7 +52,7 @@ int SignatureTest::setup(const string &targtIp)
   file.close();
 
   int ret = System::exec(signatureCmd + "-sign " + Files::privKeyFile + " -out " + signature + ' ' + Files::largeDummyFile);
-  int err = System::controlRemoteXinetd(targetIp, System::Control::start);
+  int err = System::controlRemoteService(targetIp, Service::xinetd, System::Control::start);
   if(err)
     ret = err;
 
@@ -88,7 +88,7 @@ int SignatureTest::execute()
 
 void SignatureTest::teardown()
 {
-  System::controlRemoteXinetd(targetIp, System::Control::stop);
+  System::controlRemoteService(targetIp, Service::xinetd, System::Control::stop);
 }
 
 int SignatureTest::upload()

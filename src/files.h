@@ -28,6 +28,7 @@ namespace Files
   const std::string testDummyFile = "testDummyFile";
   const std::string largeDummyFile = "/tmp/largeDummyFile";
   const std::string sshIdentityFile = "sshIdentityFile";
+  const std::string sshIdentityFileInvalid = "sshIdentityFileInvalid";
   const std::string privKeyFile = "privkey";
   const std::string pubKeyFile = "/tmp/pubkey";
 }

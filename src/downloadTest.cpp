@@ -51,7 +51,7 @@ int DownloadTest::setup(const string &targtIp)
     return 1;
   }
 
-  int ret = System::controlRemoteXinetd(targetIp, System::Control::start);
+  int ret = System::controlRemoteService(targetIp, Service::xinetd, System::Control::start);
   int err = System::exec(Command::rcp + originalPath + ' ' + remotePath);
   if(err)
     ret = err;
@@ -81,7 +81,7 @@ int DownloadTest::execute()
 
 void DownloadTest::teardown()
 {
-  System::controlRemoteXinetd(targetIp, System::Control::stop);
+  System::controlRemoteService(targetIp, Service::xinetd, System::Control::stop);
 }
 
 namespace

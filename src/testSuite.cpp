@@ -22,6 +22,7 @@
 #include "portTest.h"
 #include "downloadTest.h"
 #include "signatureTest.h"
+#include "dosTest.h"
 #include "log.h"
 using namespace std;
 
@@ -30,6 +31,7 @@ TestSuite::TestSuite()
   tests.push_back(make_unique<PortTest>());
   tests.push_back(make_unique<DownloadTest>());
   tests.push_back(make_unique<SignatureTest>());
+  tests.push_back(make_unique<DosTest>());
 }
 
 int TestSuite::run(const string &arg)

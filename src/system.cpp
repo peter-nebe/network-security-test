@@ -26,41 +26,40 @@ using namespace std;
 
 int System::exec(const string &command)
 {
-  const string text = "executing command \"" + command + '"';
-#if VERBOSE
-  loginfo << text << "..." << endl;
-#endif
-
-  const int ret = system(command.c_str());
-  if(ret < 0)
-    logerror << ret << ' ' << text << endl;
-  else if(ret > 0)
-    loginfo << "return value " << ret << ' ' << text << endl;
-
-  return ret;
+  return exec(command, command);
 }
 
 int System::exec(const string &command, string &output)
 {
-  const string text = "executing command \"" + command + '"';
-#if VERBOSE
-  loginfo << text << "..." << endl;
-#endif
-
   const string outputFile = "/tmp/syscmdoutput";
-  const int ret = system((command + " > " + outputFile).c_str());
-  if(ret < 0)
-    logerror << ret << ' ' << text << endl;
-  else if(ret > 0)
-    loginfo << "return value " << ret << ' ' << text << endl;
-
+  const int ret = exec(command, command + " > " + outputFile + " 2>&1");
   getline(ifstream(outputFile), output);
 
   return ret;
 }
 
-int System::controlRemoteXinetd(const string &targetIp, Control control)
+int System::execSsh(const string &targetIp, const string &command)
 {
-  const string ctrlCmd = "systemctl "s + (control == Control::start ? "start" : "stop") + " xinetd";
-  return exec(Command::ssh + Files::sshIdentityFile + " root@" + targetIp + ' ' + ctrlCmd);
+  return exec(Command::ssh + Files::sshIdentityFile + " root@" + targetIp + ' ' + command);
+}
+
+int System::controlRemoteService(const string &targetIp, const string &service, Control control)
+{
+  return execSsh(targetIp, "systemctl "s + (control == Control::start ? "start " : "stop ") + service);
+}
+
+int System::exec(const string &command, const string &actualCommand)
+{
+  const string text = "executing command \"" + command + '"';
+#if VERBOSE
+  loginfo << text << "..." << endl;
+#endif
+
+  const int ret = system(actualCommand.c_str());
+  if(ret < 0)
+    logerror << ret << ' ' << text << endl;
+  else if(ret > 0)
+    loginfo << "return value " << ret << ' ' << text << endl;
+
+  return ret;
 }
