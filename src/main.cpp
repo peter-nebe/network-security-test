@@ -24,7 +24,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  if(argc != 2)
+  if(argc != 2 || argv[1][0] == '-')
   {
     loginfo << "usage: " << argv[0] << " IP_ADDR" << endl;
     return 1;
